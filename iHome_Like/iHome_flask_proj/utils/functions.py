@@ -1,4 +1,13 @@
 
+from flask_sqlalchemy import SQLAlchemy
+
+db = SQLAlchemy()
+
+
+def init_ext(app):
+
+    db.init_app(app)
+
 
 def get_database_config(database_conf):
 

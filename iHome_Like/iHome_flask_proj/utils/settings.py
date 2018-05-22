@@ -19,3 +19,5 @@ DATABASE = {
 }
 
 SQLALCHEMY_DATABASE_URI = get_database_config(DATABASE)
+
+UPLOAD_DIRS = os.path.join(STATIC_DIR, 'upload')
