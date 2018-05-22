@@ -7,6 +7,8 @@
 
 #### params参数
 
+    avatar file 头像
+
 #### response响应
 
 ##### 失败响应1：

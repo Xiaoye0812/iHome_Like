@@ -3,6 +3,7 @@ from flask import Flask
 
 from utils.settings import STATIC_DIR, TEMPLATES_DIR
 from .User.views import user_blue, index_blue
+from .House.views import house_blue
 from utils.config import Config
 from utils.functions import init_ext
 
@@ -12,6 +13,7 @@ def create_app():
 
     app.register_blueprint(blueprint=user_blue, url_prefix='/user')
     app.register_blueprint(blueprint=index_blue, url_prefix='')
+    app.register_blueprint(blueprint=house_blue, url_prefix='/house')
 
     app.config.from_object(Config)
 

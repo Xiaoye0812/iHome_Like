@@ -21,3 +21,5 @@ DATABASE = {
 SQLALCHEMY_DATABASE_URI = get_database_config(DATABASE)
 
 UPLOAD_DIRS = os.path.join(STATIC_DIR, 'upload')
+UPLOAD_AVATAR_DIRS = os.path.join(UPLOAD_DIRS, 'user')
+UPLOAD_HOUSE_IMAGE_DIRS = os.path.join(UPLOAD_DIRS, 'house')

@@ -1,6 +1,6 @@
 function logout() {
     $.get("/user/logout/", function(data){
-        if (0 === data.code) {
+        if (200 === data.code) {
             location.href = "/";
         }
     })

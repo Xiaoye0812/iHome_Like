@@ -16,6 +16,10 @@ USER_LOGIN_IS_NOT_EXSITS = {'code': 1004, 'msg': '用户名不存在'}
 USER_LOGIN_PASSWORD_ERROR = {'code': 1005, 'msg': '密码不正确'}
 
 USER_UPLOAD_TYPE_ERROR = {'code': 1006, 'msg': '上传图片格式不正确'}
-
-USER_REAL_NAME_IS_EXSITS = {'code': 1007, 'msg': '已实名认证，不可更改'}
 USER_NAME_IS_EXSITS = {'code': 1008, 'msg': '用户名已存在，不可更改'}
+
+USER_CARD_TYPE_ERROR = {'code': 1007, 'msg': '身份证格式不正确'}
+
+# 房屋模块
+MYHOUSE_USER_IS_NOT_AUTH = {'code': 2000, 'msg': '用户未实名认证'}
+MYHOUSE_UPLOAD_TYPE_ERROR = {'code': 2001, 'msg': '上传图片格式不正确'}

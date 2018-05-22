@@ -5,7 +5,8 @@ from flask import Blueprint, request, jsonify, redirect, render_template, sessio
 
 from .models import db, User
 from utils import status_code
-from utils.settings import UPLOAD_DIRS
+from utils.settings import UPLOAD_AVATAR_DIRS
+from utils.functions import login_check
 
 index_blue = Blueprint('index', __name__)
 user_blue = Blueprint('user', __name__)
@@ -18,6 +19,7 @@ def index():
 
 
 @user_blue.route('/createtables/')
+@login_check
 def create_tables():
 
     db.create_all()
@@ -106,6 +108,7 @@ def my():
     return render_template('my.html')
 
 
+# 获取个人信息
 @user_blue.route('/user/', methods=('GET',))
 def get_user_info():
 
@@ -115,12 +118,15 @@ def get_user_info():
     return jsonify({'user': user.to_basic_dict(), 'code': 200})
 
 
+# 修改信息页面
 @user_blue.route('/profile/', methods=('GET',))
+@login_check
 def profile():
 
     return render_template('profile.html')
 
 
+# 上传头像接口
 @user_blue.route('/profile/', methods=('POST',))
 def upload_profile():
 
@@ -134,12 +140,16 @@ def upload_profile():
         if not re.match(r'^image/.*$', avatar.mimetype):
             return jsonify(status_code.USER_UPLOAD_TYPE_ERROR)
 
-        url = os.path.join(UPLOAD_DIRS, avatar.filename)
+        save_url = os.path.join(UPLOAD_AVATAR_DIRS, '%s' % user_id)
+        if not os.path.exists(save_url):
+            os.makedirs(save_url)
+
+        url = os.path.join(save_url, avatar.filename)
 
         avatar.save(url)
 
         user = User.query.filter(User.id == user_id).first()
-        image_url = os.path.join('/static/upload', avatar.filename)
+        image_url = os.path.join('/static/upload/user/%s' % user_id, avatar.filename)
 
         user.avatar = image_url
 
@@ -150,6 +160,7 @@ def upload_profile():
             return jsonify(status_code.DATABASE_ERROR)
 
 
+# 修改用户名接口
 @user_blue.route('/profile/name/', methods=['POST'])
 def update_name():
 
@@ -174,44 +185,54 @@ def update_name():
         return jsonify(status_code.DATABASE_ERROR)
 
 
+# 实名认证页面
 @user_blue.route('/auth/', methods=['GET'])
+@login_check
 def realname():
 
     return render_template('auth.html')
 
 
-@user_blue.route('/updateauth/', methods=['POST'])
+# 实名认证接口
+@user_blue.route('/updateauth/', methods=['POST', 'GET'])
 def update_auth():
-
     user_id = session['user_id']
-    real_name = request.form.get('real_name')
-    id_card = request.form.get('id_card')
-
-
-    if not user_id:
-        return jsonify(status_code.USER_LOGIN_TIMEOUT)
-
-    if not all((real_name, id_card)):
-        return jsonify(status_code.PARAMS_ERROR)
-
     user = User.query.filter(User.id == user_id).first()
-
     if not user:
         return jsonify(status_code.USER_LOGIN_IS_NOT_EXSITS)
 
-    if user.id_name or user.id_card:
-        return jsonify(status_code.USER_REAL_NAME_IS_EXSITS)
+    if request.method == 'GET':
+        id_name = user.id_name
+        id_card = user.id_card
+        return jsonify(code=status_code.SUCCESS['code'], id_name=id_name, id_card=id_card)
 
-    user.id_name = real_name
-    user.id_card = id_card
-    try:
-        user.add_update()
-        return jsonify(status_code.SUCCESS)
-    except Exception:
-        return jsonify(status_code.DATABASE_ERROR)
+    if request.method == 'POST':
+
+        real_name = request.form.get('real_name')
+        id_card = request.form.get('id_card')
+
+        if not user_id:
+            return jsonify(status_code.USER_LOGIN_TIMEOUT)
+
+        if not all((real_name, id_card)):
+            return jsonify(status_code.PARAMS_ERROR)
+
+        if not re.match(r'^[1-9]\d{17}$', id_card):
+            return jsonify(status_code.USER_CARD_TYPE_ERROR)
+
+        user.id_name = real_name
+        user.id_card = id_card
+        try:
+            user.add_update()
+            return jsonify(status_code.SUCCESS)
+        except Exception:
+            return jsonify(status_code.DATABASE_ERROR)
 
 
+# 退出登录接口
 @user_blue.route('/logout/', methods=('GET',))
 def logout():
+
+    session.clear()
 
     return jsonify(status_code.SUCCESS)

@@ -1,4 +1,5 @@
 
+from flask import session, redirect
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
@@ -20,3 +21,21 @@ def get_database_config(database_conf):
     name = database_conf['name']
 
     return '{}+{}://{}:{}@{}:{}/{}'.format(database, driver, user, password, host, port, name)
+
+
+import functools
+def login_check(run_func):
+
+    @functools.wraps(run_func)
+    def decorator():
+
+        try:
+            # 验证用户是否登录
+            if 'user_id' in session:
+                return run_func()
+            else:
+                return redirect('/user/login/')
+        except:
+            return redirect('/user/login/')
+
+    return decorator
