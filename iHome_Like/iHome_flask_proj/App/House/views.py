@@ -2,8 +2,9 @@ import re
 import os
 
 from flask import Blueprint, render_template, jsonify, session, request
+from sqlalchemy import or_
 
-from .models import db
+from .models import db, Order
 from utils.functions import login_check
 from utils.settings import UPLOAD_HOUSE_IMAGE_DIRS
 from utils import status_code
@@ -94,9 +95,13 @@ def create_newhouse():
     house.min_days = min_days
     house.max_days = max_days
 
-    for facility_id in facility_list:
-        faci = Facility.query.get(facility_id)
-        house.facities.append(faci)
+    # for facility_id in facility_list:
+    #     faci = Facility.query.get(facility_id)
+    #     house.facities.append(faci)
+
+    if facility_list:
+        facities = Facility.query.filter(Facility.id.in_(facility_list)).all()
+        house.facities = facities
 
     try:
         house.add_update()
@@ -161,12 +166,40 @@ def facility_area_info():
     return jsonify(code=status_code.SUCCESS['code'], facility_list=facility_list, area_list=area_list)
 
 
-@house_blue.route('/detail/<int:house_id>/', methods=['GET'])
-def detail(house_id):
+# 查询地区接口
+@house_blue.route('/area/', methods=['GET'])
+def area_info():
+
+    areas = Area.query.all()
+
+    area_list = []
+    for area in areas:
+        area_list.append(area.to_dict())
+
+    return jsonify(code=status_code.SUCCESS['code'], area_list=area_list)
+
+
+# 查询设施接口
+@house_blue.route('/faci/', methods=['GET'])
+def facility_info():
+
+    facilities = Facility.query.all()
+    facility_list = []
+    for facility in facilities:
+        facility_list.append(facility.to_dict())
+
+    return jsonify(code=status_code.SUCCESS['code'], facility_list=facility_list)
+
+
+# 房屋详情页面
+@house_blue.route('/detail/', methods=['GET'])
+@login_check
+def detail():
 
     return render_template('detail.html')
 
 
+# 房屋详情接口
 @house_blue.route('/detailinfo/<int:house_id>/', methods=['GET'])
 def detail_info(house_id):
 
@@ -174,4 +207,62 @@ def detail_info(house_id):
     house = House.query.get(house_id)
     house_dict = house.to_full_dict()
 
-    return jsonify(code=status_code.SUCCESS['code'], house_dict=house_dict)
+    booking = 0 if user_id == house.user_id else 1
+
+    return jsonify(code=status_code.SUCCESS['code'], house_dict=house_dict, booking=booking)
+
+
+# 预约页面
+@house_blue.route('/booking/', methods=['GET'])
+# @login_check
+def booking():
+
+    return render_template('booking.html')
+
+
+# 查找结果页面
+@house_blue.route('/search/', methods=['GET'])
+def search_html():
+
+    return render_template('search.html')
+
+
+# 查找房源接口
+@house_blue.route('/searchhouse/', methods=['GET'])
+def search_house():
+
+    info_dict = request.args
+    area_id = info_dict['area_id']
+    start_date = info_dict['start_date']
+    end_date = info_dict['end_date']
+    sort_key = info_dict['sort_key']
+    next_page = info_dict['next_page']
+
+    if area_id:
+        houses = House.query.filter(House.area_id == area_id)
+    else:
+        houses = House.query
+
+    orders = Order.query.filter(or_(Order.begin_date <= end_date, Order.end_date >= start_date)).all()
+
+    order_list = [order.id for order in orders]
+
+    houses = houses.filter(House.id.notin_(order_list)).all()
+
+    house_list = []
+    for house in houses:
+        house_list.append(house.to_full_dict())
+
+    return jsonify(code=status_code.SUCCESS['code'], house_list=house_list)
+
+
+# 主页现实房源接口
+@house_blue.route('/indexhouse/', methods=['GET'])
+def index_house():
+
+    houses = House.query.order_by(House.create_time).limit(5)
+    house_list = []
+    for house in houses:
+        house_list.append(house.to_dict())
+
+    return jsonify(code=status_code.SUCCESS['code'], house_list=house_list)

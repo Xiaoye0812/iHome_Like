@@ -44,7 +44,7 @@ function setEndDate() {
 }
 
 function goToSearchPage(th) {
-    var url = "/search.html?";
+    var url = "/house/search/?";
     url += ("aid=" + $(th).attr("area-id"));
     url += "&";
     var areaName = $(th).attr("area-name");
@@ -58,20 +58,32 @@ function goToSearchPage(th) {
 }
 
 $(document).ready(function(){
-    $(".top-bar>.register-login").show();
-    var mySwiper = new Swiper ('.swiper-container', {
-        loop: true,
-        autoplay: 2000,
-        autoplayDisableOnInteraction: false,
-        pagination: '.swiper-pagination',
-        paginationClickable: true
-    }); 
-    $(".area-list a").click(function(e){
-        $("#area-btn").html($(this).html());
-        $(".search-btn").attr("area-id", $(this).attr("area-id"));
-        $(".search-btn").attr("area-name", $(this).html());
-        $("#area-modal").modal("hide");
+    $.get('/house/area/', function (result) {
+        if (result.code === 200) {
+            var area_temp = template('area_li', {areas:result.area_list});
+            $('.area-list').html(area_temp);
+            $(".area-list > a").click(function(e){
+                $("#area-btn").html($(this).html());
+                $(".search-btn").attr("area-id", $(this).attr("area-id"));
+                $(".search-btn").attr("area-name", $(this).html());
+                $("#area-modal").modal("hide");
+            });
+        }
     });
+    $(".top-bar>.register-login").show();
+    // var mySwiper = new Swiper ('.swiper-container', {
+    //     loop: true,
+    //     autoplay: 2000,
+    //     autoplayDisableOnInteraction: false,
+    //     pagination: '.swiper-pagination',
+    //     paginationClickable: true
+    // });
+    // $(".area-list > a").click(function(e){
+    //     $("#area-btn").html($(this).html());
+    //     $(".search-btn").attr("area-id", $(this).attr("area-id"));
+    //     $(".search-btn").attr("area-name", $(this).html());
+    //     $("#area-modal").modal("hide");
+    // });
     $('.modal').on('show.bs.modal', centerModals);      //当模态框出现的时候
     $(window).on('resize', centerModals);               //当窗口大小变化的时候
     $("#start-date").datepicker({
@@ -84,4 +96,31 @@ $(document).ready(function(){
         var date = $(this).datepicker("getFormattedDate");
         $("#start-date-input").val(date);
     });
-})
+
+    $.get('/user/user/', function (result) {
+        if (result.code === 200) {
+            $('.register-login').hide();
+            $('.user-info').show();
+            $('.user-name').text(result.user.name);
+        }else{
+            $('.register-login').show();
+            $('.user-info').hide();
+        }
+    });
+
+});
+
+$.get('/house/indexhouse/', function (result) {
+    if (result.code === 200) {
+        var houses = template('house_li', {houses:result.house_list});
+        $('.swiper-wrapper').append(houses);
+        var mySwiper = new Swiper ('.swiper-container', {
+            loop: true,
+            autoplay: 2000,
+            autoplayDisableOnInteraction: false,
+            pagination: '.swiper-pagination',
+            paginationClickable: true
+        });
+    }
+});
+

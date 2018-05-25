@@ -1,6 +1,6 @@
 
 from App.basemodels import BaseModel, db
-from App.User.models import User
+# from App.User.views import User
 
 ihome_house_facility = db.Table(
     'tb_ihome_house_facility',
@@ -17,7 +17,7 @@ class House(BaseModel, db.Model):
 
     id = db.Column(db.Integer, primary_key=True)  # 房屋编号
     # 房屋主人的用户编号
-    user_id = db.Column(db.Integer, db.ForeignKey(User.id), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('tb_ihome_user.id'), nullable=False)
     # 归属地的区域编号
     area_id = db.Column(db.Integer, db.ForeignKey('tb_ihome_area.id'), nullable=False)
     title = db.Column(db.String(64), nullable=False)  # 标题
@@ -78,7 +78,7 @@ class House(BaseModel, db.Model):
             'facilities': [facility.to_dict() for facility in self.facities],
             'room': self.room_count,
             'order_count': self.order_count,
-            'address': self.address
+            'address': self.area.name + self.address
         }
 
 

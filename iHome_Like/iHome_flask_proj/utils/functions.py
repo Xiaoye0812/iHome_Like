@@ -35,7 +35,7 @@ def login_check(run_func):
                 return run_func()
             else:
                 return redirect('/user/login/')
-        except:
+        except Exception as e:
             return redirect('/user/login/')
 
     return decorator

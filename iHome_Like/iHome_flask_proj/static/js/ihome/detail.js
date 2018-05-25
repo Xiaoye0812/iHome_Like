@@ -25,7 +25,7 @@ $(document).ready(function(){
 $(function () {
     var current_url = document.URL;
     var str_list = current_url.split('/');
-    var house_id = str_list[str_list.length-2];
+    var house_id = str_list[str_list.length-2].split('=')[1];
     console.log(house_id);
     $.get('/house/detailinfo/' + house_id + '/', function (result) {
         if (result.code === 200) {
@@ -34,11 +34,11 @@ $(function () {
             for (var i=0; i<images.length; i++){
                 $('.swiper-wrapper').append(
                     $('<li>').attr('class', "swiper-slide").append(
-                        $('<img>').attr('src', house.image)));
+                        $('<img>').attr('src', images[i])));
             }
             $('.house-price > span').text(house.price);
             $('.house-title').text(house.title);
-            $('.landlord-pic').html('<img src="' + house.image + '">');
+            $('.landlord-pic').html('<img src="' + house.user_avatar + '">');
             $('.landlord-name > span').text(house.user_name);
             $('.house-info > h3').text(house.area);
             $('#house_address > li').text(house.address);
@@ -55,14 +55,27 @@ $(function () {
             $('#house_max_days').text(house.max_days===0?'无限制':house.max_days);
             var facility_list = house.facilities;
             for (var i=0; i<facility_list.length; i++){
-                var facitily = facility_list[i];
+                var facility = facility_list[i];
                 $('.house-facility-list')
                     .append($('<li>')
                         .append($('<span>')
-                            .attr('class', facitily.css))
-                            .text(facitily.name));
+                            .attr('class', facility.css)).append(facility.name));
             }
+            if (result.booking === 0){
+                $('.book-house').hide();
+            }else {
+                $('.book-house').show();
+            }
+            $('.book-house').attr('href', '/house/booking/?id=' + house_id + '/');
         }
+
+        var mySwiper = new Swiper ('.swiper-container', {
+            loop: true,
+            autoplay: 2000,
+            autoplayDisableOnInteraction: false,
+            pagination: '.swiper-pagination',
+            paginationType: 'fraction'
+        });
     })
 });
 

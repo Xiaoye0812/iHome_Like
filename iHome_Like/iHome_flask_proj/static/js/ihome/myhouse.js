@@ -15,7 +15,7 @@ $(function () {
             for (var i=0; i<result.house_list.length; i++) {
                 var house = result.house_list[i];
                 var html = '';
-                html += '<a href="/house/detail/'+ house.id +'/">';
+                html += '<a href="/house/detail/?id='+ house.id +'/">';
                 html += '<div class="house-title">';
                 html += '<h3>房屋ID:'+ house.id + '——' + house.title + '</h3>';
                 html += '</div><div class="house-content">';

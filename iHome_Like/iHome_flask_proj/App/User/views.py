@@ -113,6 +113,9 @@ def my():
 def get_user_info():
 
     user_id = session['user_id']
+    if not user_id:
+        return jsonify(status_code.USER_NOT_LOGIN)
+
     user = User.query.get(user_id)
 
     return jsonify({'user': user.to_basic_dict(), 'code': 200})

@@ -13,3 +13,20 @@
 
 
 #### 房屋模块
+
+    - [我的房源](docs/house/myhouse.md)
+        - [房源详情](docs/house/house_info.md)
+        - [新增房源](docs/house/newhouse.md)
+        - [上传房源图片](docs/house/upload_house_image.md)
+    - [城区与房屋设施](docs/house/facility_area.md)
+    - [主页房源](docs/house/index_house.md)
+    - [查找房源](docs/house/search_house.md)
+
+
+#### 订单模块
+
+    - [预定房间]
+    - [我的订单]
+    - [客户订单]
+        - [接收订单]
+        - [拒接订单]

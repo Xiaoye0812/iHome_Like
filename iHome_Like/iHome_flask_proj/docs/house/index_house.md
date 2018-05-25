@@ -1,9 +1,9 @@
 
-### 我的房源接口
+### 主页展示房源接口
 
 #### request请求
 
-    GET /house/auth_myhouse/
+    GET /house/indexhouse/
 
 #### params参数
 
@@ -28,9 +28,9 @@
         ]
     }
 
-##### 成功响应2：
+##### 失败响应：
 
     {
-        'code': 2000,
-        'msg': '用户未实名认证'
+        'code': 900,
+        'msg': '数据库访问失败'
     }

@@ -51,8 +51,6 @@ $('#form-house-info').submit(function (e) {
 
 $('#form-house-image').submit(function (e) {
     e.preventDefault();
-    // var formData = new FormData($('#form-house-image'));
-    // formData.house_id = $('#house-id').val();
     $(this).ajaxSubmit({
         url: '/house/uploadimg/',
         type: 'PUT',
@@ -61,7 +59,7 @@ $('#form-house-image').submit(function (e) {
         contentType: false,
         success: function (result) {
             if (result.code === 200){
-                // $('<img>').attr('src', result.image_url);
+                $('.house-image-cons').append($('<img>').attr('src', result.image_url));
                 alert('上传成功');
             }
         },
